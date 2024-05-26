@@ -1,7 +1,30 @@
-import { Box, Container, Flex, Heading, HStack, IconButton, Input, Link, Text, VStack } from "@chakra-ui/react";
+import { useState } from "react";
+import { Box, Container, Flex, Heading, HStack, IconButton, Input, Link, Text, VStack, Button, AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader, AlertDialogContent, AlertDialogOverlay } from "@chakra-ui/react";
 import { FaFacebook, FaTwitter, FaInstagram } from "react-icons/fa";
 
 const Index = () => {
+  const [posts, setPosts] = useState([
+    { id: 1, title: "Blog Post Title 1", content: "This is a summary of the blog post content. It gives a brief overview of what the post is about." },
+    { id: 2, title: "Blog Post Title 2", content: "This is a summary of the blog post content. It gives a brief overview of what the post is about." }
+  ]);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [postToDelete, setPostToDelete] = useState(null);
+
+  const openDeleteDialog = (post) => {
+    setPostToDelete(post);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const closeDeleteDialog = () => {
+    setIsDeleteDialogOpen(false);
+    setPostToDelete(null);
+  };
+
+  const deletePost = () => {
+    setPosts(posts.filter(post => post.id !== postToDelete.id));
+    closeDeleteDialog();
+  };
+
   return (
     <Container maxW="container.xl">
       {/* Navigation Bar */}
@@ -21,14 +44,15 @@ const Index = () => {
         {/* Blog Posts Section */}
         <Box flex="3" mr={{ md: 8 }}>
           <VStack spacing={8} align="stretch">
-            <Box p={5} shadow="md" borderWidth="1px">
-              <Heading fontSize="xl">Blog Post Title 1</Heading>
-              <Text mt={4}>This is a summary of the blog post content. It gives a brief overview of what the post is about.</Text>
-            </Box>
-            <Box p={5} shadow="md" borderWidth="1px">
-              <Heading fontSize="xl">Blog Post Title 2</Heading>
-              <Text mt={4}>This is a summary of the blog post content. It gives a brief overview of what the post is about.</Text>
-            </Box>
+            {posts.map(post => (
+              <Box key={post.id} p={5} shadow="md" borderWidth="1px">
+                <Flex justifyContent="space-between" alignItems="center">
+                  <Heading fontSize="xl">{post.title}</Heading>
+                  <Button colorScheme="red" onClick={() => openDeleteDialog(post)}>Delete</Button>
+                </Flex>
+                <Text mt={4}>{post.content}</Text>
+              </Box>
+            ))}
           </VStack>
         </Box>
 
@@ -66,6 +90,27 @@ const Index = () => {
           <IconButton as="a" href="#" aria-label="Instagram" icon={<FaInstagram />} />
         </HStack>
       </Flex>
+
+      <AlertDialog isOpen={isDeleteDialogOpen} leastDestructiveRef={undefined} onClose={closeDeleteDialog}>
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Delete Blog Post
+            </AlertDialogHeader>
+            <AlertDialogBody>
+              Are you sure you want to delete this blog post? This action cannot be undone.
+            </AlertDialogBody>
+            <AlertDialogFooter>
+              <Button onClick={closeDeleteDialog}>
+                Cancel
+              </Button>
+              <Button colorScheme="red" onClick={deletePost} ml={3}>
+                Delete
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </Container>
   );
 };
